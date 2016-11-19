@@ -2,21 +2,43 @@
 from socket import *
 import ClientMain
 import random
-import json
+import pickle
+nodeIPMap = dict()
 
-def register():
-    clientSocket = socket(AF_INET, SOCK_DGRAM)
+def register(userid):
+    clientSocket = []
+    i=0
+    randID = 0
     for ip in ClientMain.trackerList:
         randID = str(random.randint(0, 65535))
-        flags = 0
-        #message = randID + " " + ClientMain.flags + ClientMain.REGISTER + " " + 
+        ml = []
+        ml.append(randID)
+        ml.append(ClientMain.REQ_FLAG)
+        ml.append(ClientMain.REGISTER)
+        ml.append(gethostbyname(gethostname()))
+        ml.append(userid)
+        message = pickle.dumps(ml)
+        clientSocket.append(socket(AF_INET, SOCK_DGRAM))
+        clientSocket[i].sendto(message.encode(),(ip, ClientMain.trackerPort))
+        i+=1
+    
+    for i in range(3):
+        serverResp, serverAddress = clientSocket[i].recvfrom(2048)
+        if serverResp == '':
+            continue
+        serverResp = serverResp.decode()
+        serverResp = pickle.loads(serverResp)
+        if serverResp[0] == randID:
+            # check for response flag
+            if serverResp[1]&ClientMain.RES_FLAG:
+                if serverResp[1]&ClientMain.NCONFLICT_FLAG:
+                    #name conflict occured
+                    print "UserId already Exits, try another one"
+                    userid = ClientMain.getUserLoginID()
+                    register()
+                if serverResp[4] != userid:
+                    register()
+                return
+                # client successfully registered
         
-        ml = [1,2,3,4,5,6]
-        ml[0]=randID
-        ml[1]=0#ClientMain.flags
-        ml[2]=ClientMain.REGISTER
-        ml[3]="1.1.1.1"#IP ADDRESS
-        ml[4]=ClientMain.userid
-        message = json.dumps(ml)
-        clientSocket.sendto(message.encode(),(ip, ClientMain.trackerPort))
-        ClientMain.trackerPort
+    

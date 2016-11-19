@@ -10,8 +10,10 @@ trackerList = ["192.168.42.3"]#,"1.1.1.2","1.1.1.3"]
 trackerPort = 9990
 
 #FLAG VALUES
+REQ_FLAG =0
 RES_FLAG = 128
 NCONFLICT_FLAG = 64
+SERVER_FULL = 32
 
 #ACTION VALUES
 REGISTER = 0
@@ -40,12 +42,12 @@ def showMainOptions():
     
 def getUserLoginID():
     #print 
-    global userid
     userid = raw_input("Enter your user id : ")
+    return userid
 
 if __name__ == "__main__":
     showMainScreen()
-    getUserLoginID()
+    userid = getUserLoginID()
     print "\n\n Welcome "+userid+" !"
-    ClientRegister.register()
+    ClientRegister.register(userid)
     showMainOptions()
