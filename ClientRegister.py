@@ -132,7 +132,7 @@ def pingReq(myuserid,destuserid,destipaddress):
     data = pickle.loads(data)
     if (data[0] == destuserid) and (data[1] == myuserid):
         if data[2] == randID:
-            if data[3] == CLIENT_PING_RES_OK_MSG:
+            if data[3] == ClientMain.CLIENT_PING_RES_OK_MSG:
                 recvStatus = True
     client_socket.close()
     return recvStatus
@@ -158,7 +158,7 @@ def sendMsg(message,myuserid, destuserid,ipaddress):
     data = pickle.loads(data)
     if (data[0] == destuserid) and (data[1] == myuserid):
         if data[2] == randID:
-            if data[3] == CLIENT_RECV_TYPE:
+            if data[3] == ClientMain.CLIENT_RECV_TYPE:
                 recvStatus = True
     client_socket.close()
     return recvStatus
