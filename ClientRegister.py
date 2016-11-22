@@ -3,7 +3,10 @@ from socket import *
 import ClientMain
 import random
 import pickle
+from time import gmtime, strftime
 nodeIPMap = dict()
+
+msgList = []
 
 def query(userid):
     clientSocket = []
@@ -22,7 +25,7 @@ def query(userid):
         clientSocket[i].sendto(message.encode(),(ip, ClientMain.trackerPort))
         i+=1
         
-    for i in range(3):
+    for i in range(len(ClientMain.trackerList)):
         serverResp, serverAddress = clientSocket[i].recvfrom(2048)
         if serverResp == '':
             continue
@@ -60,7 +63,7 @@ def exit(userid):
         clientSocket[i].sendto(message.encode(),(ip, ClientMain.trackerPort))
         i+=1
     
-    for i in range(3):
+    for i in range(len(ClientMain.trackerList)):
         serverResp, serverAddress = clientSocket[i].recvfrom(2048)
         if serverResp == '':
             continue
@@ -128,11 +131,12 @@ def pingReq(myuserid,destuserid,destipaddress):
     # check is message is received
     recvStatus = False
     data = client_socket.recv(1024)
-    print "IP GOT RESP:"+data
     data = pickle.loads(data)
+    print "PING RESP:"
+    print data
     if (data[0] == destuserid) and (data[1] == myuserid):
         if data[2] == randID:
-            if data[3] == ClientMain.CLIENT_PING_RES_OK_MSG:
+            if data[5] == ClientMain.CLIENT_PING_RES_OK_MSG:
                 recvStatus = True
     client_socket.close()
     return recvStatus
@@ -163,6 +167,55 @@ def sendMsg(message,myuserid, destuserid,ipaddress):
     client_socket.close()
     return recvStatus
     
+def returnMsg():
+    global msgList
+    return msgList
     
-def RecvThread():
-    pass
+def recvThread():
+    serverPort = ClientMain.clientPort
+    serverSocket = socket(AF_INET, SOCK_STREAM)
+    serverSocket.bind(('', serverPort))
+    serverSocket.listen(1)
+    global msgList
+    while True:
+        connectionSocket, addr = serverSocket.accept()
+        data = connectionSocket.recv(2048)
+        print "Recver got :"+data
+        recvStatus= False
+        data = pickle.loads(data)
+        print data
+            # ADD more check of destn
+        if data[3] == ClientMain.CLIENT_PING_REQ_TYPE:
+            #send back OK
+            respdata = []
+            respdata.append(data[1])
+            respdata.append(data[0])
+            respdata.append(data[2])
+            respdata.append(ClientMain.CLIENT_PING_RES_TYPE)
+            respdata.append(len(ClientMain.CLIENT_PING_RES_OK_MSG))
+            respdata.append(ClientMain.CLIENT_PING_RES_OK_MSG)
+            respdata = pickle.dumps(respdata)
+            print "RECV THREAD SEND : "+respdata
+            connectionSocket.send(respdata)
+
+        
+        if data[3] == ClientMain.CLIENT_SEND_TYPE:
+            # for send messages
+            msgitem = (data[0],strftime("%Y-%m-%d %H:%M:%S", gmtime()),data[5])
+            print 'adding msg item'
+            print msgitem
+            ClientMain.addMessage(msgitem)
+            msgList.append(msgitem)
+            ClientMain.printMyMessages()
+            #send back the ok
+            respdata = []
+            respdata.append(data[1])
+            respdata.append(data[0])
+            respdata.append(data[2])
+            respdata.append(ClientMain.CLIENT_RECV_TYPE)
+            respdata.append(len(ClientMain.CLIENT_PING_RES_OK_MSG))
+            respdata.append(ClientMain.CLIENT_PING_RES_OK_MSG)
+            respdata = pickle.dumps(respdata)
+            connectionSocket.send(respdata)
+        
+        connectionSocket.close()

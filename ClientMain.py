@@ -1,4 +1,5 @@
 import ClientRegister
+import thread
 
 userid = ""
 myIPAddr = ""
@@ -41,6 +42,9 @@ EXIT = 2
 SENDMESSAGE = 4
 REPLYSTATUS = 8
 
+# message list
+msgList = []
+
 
 def showMainScreen():
     welcomeMsg = """\n    #################################
@@ -59,14 +63,22 @@ def showMainOptions():
             ClientRegister.exit(userid)
             break
         elif option == '2':
-            pass# read message
+            printMyMessages()# read message
         elif option == '1':
             showSendScreen()
+
+def printMyMessages():
+    #global msgList
+    print "Messages below:"
+    for item in ClientRegister.returnMsg():
+        print item
+
 
 def showSendScreen():
     global userid
     targetID = raw_input("Enter the user's id to send message:")
     destIPAddr = ClientRegister.query(targetID)
+    destIPAddr = '127.0.0.1'
     if destIPAddr == None:
         print "User id not found"
         return
@@ -79,7 +91,7 @@ def showSendScreen():
     message = raw_input("Enter the message:")
     if ClientRegister.sendMsg(message,userid,targetID,destIPAddr):
         print "Message send successfully"
-    
+
     
 def getUserLoginID():
     #print 
@@ -87,9 +99,14 @@ def getUserLoginID():
     userid = raw_input("Enter your user id : ")
     return userid
 
+def addMessage(msgItem):
+    global msgList
+    msgList.append(msgItem)
+    
 if __name__ == "__main__":
     showMainScreen()
     userid = getUserLoginID()
+    thread.start_new_thread(ClientRegister.recvThread,())
     print "\n\n Welcome "+userid+" !"
     myIPAddr = ClientRegister.register(userid)
     showMainOptions()
