@@ -74,13 +74,14 @@ def register(userid):
     clientSocket = []
     i=0
     randID = 0
+    myIPAddr = gethostbyname(gethostname());
     for ip in ClientMain.trackerList:
         randID = str(random.randint(0, 65535))
         ml = []
         ml.append(randID)
         ml.append(ClientMain.REQ_FLAG)
         ml.append(ClientMain.REGISTER)
-        ml.append(gethostbyname(gethostname()))
+        ml.append(myIPAddr)
         ml.append(userid)
         message = pickle.dumps(ml)
         clientSocket.append(socket(AF_INET, SOCK_DGRAM))
@@ -89,6 +90,7 @@ def register(userid):
     
     for i in range(3):
         serverResp, serverAddress = clientSocket[i].recvfrom(2048)
+        clientSocket[i].close()
         if serverResp == '':
             continue
         serverResp = serverResp.decode()
@@ -102,11 +104,60 @@ def register(userid):
                     #name conflict occured
                     print "UserId already Exits, try another one"
                     userid = ClientMain.getUserLoginID()
-                    register(userid)
+                    return register(userid)
                 # TODO : check why here
                 #if serverResp[4] != userid:
                 #    register(userid)
-                return
+                return myIPAddr
                 # client successfully registered
-        
+     
+def pingReq(destuserid,destipaddress):
+    client_socket = socket(AF_INET, SOCK_STREAM)
+    client_socket.connect((ipaddress, ClientMain.clientPort))
+    data = []
+    data.append(myuserid)
+    data.append(destuserid)
+    randID = str(random.randint(0, 65535))
+    data.append(randID)
+    data.append(ClientMain.CLIENT_SEND_TYPE)
+    data.append(len(ClientMain.CLIENT_PING_REQ_MSG))
+    data.append(ClientMain.CLIENT_PING_REQ_MSG)
+    data = pickle.dumps(data)
+    client_socket.send(data)
+    
+    # check is message is received
+    recvStatus = False
+    data = client_socket.recv(1024)
+    data = pickle.loads(data)
+    if (data[0] == destuserid) and (data[1] == myuserid):
+        if data[2] == randID:
+            if data[3] == CLIENT_PING_RES_OK_MSG:
+                recvStatus = True
+    client_socket.close()
+    return recvStatus
+
+def sendMsg(message,myuserid, destuserid,ipaddress):
+    client_socket = socket(AF_INET, SOCK_STREAM)
+    client_socket.connect((ipaddress, ClientMain.clientPort))
+    data = []
+    data.append(myuserid)
+    data.append(destuserid)
+    randID = str(random.randint(0, 65535))
+    data.append(randID)
+    data.append(ClientMain.CLIENT_SEND_TYPE)
+    data.append(len(message))
+    data.append(message)
+    data = pickle.dumps(data)
+    client_socket.send(data)
+    
+    # check is message is received
+    recvStatus = False
+    data = client_socket.recv(1024)
+    data = pickle.loads(data)
+    if (data[0] == destuserid) and (data[1] == myuserid):
+        if data[2] == randID:
+            if data[3] == CLIENT_RECV_TYPE:
+                recvStatus = True
+    client_socket.close()
+    return recvStatus
     
