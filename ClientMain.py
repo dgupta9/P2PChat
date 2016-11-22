@@ -67,12 +67,12 @@ def showSendScreen():
     global userid
     targetID = raw_input("Enter the user's id to send message:")
     destIPAddr = ClientRegister.query(targetID)
-    if destIPAddr == NONE:
+    if destIPAddr == None:
         print "User id not found"
         return
         
     #send ping request first
-    targetAlive = ClientRegister.ping(destIPAddr)
+    targetAlive = ClientRegister.pingReq(userid,targetID,destIPAddr)
     if not targetAlive:
         print "User ["+targetID+"] not online"
         return

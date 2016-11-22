@@ -41,7 +41,7 @@ def query(userid):
                 # TODO : check why here
                 #if serverResp[4] != userid:
                 #    register(userid)
-                return
+                return serverResp[3]
 
 def exit(userid):
     clientSocket = []
@@ -111,15 +111,15 @@ def register(userid):
                 return myIPAddr
                 # client successfully registered
      
-def pingReq(destuserid,destipaddress):
+def pingReq(myuserid,destuserid,destipaddress):
     client_socket = socket(AF_INET, SOCK_STREAM)
-    client_socket.connect((ipaddress, ClientMain.clientPort))
+    client_socket.connect((destipaddress, ClientMain.clientPort))
     data = []
     data.append(myuserid)
     data.append(destuserid)
     randID = str(random.randint(0, 65535))
     data.append(randID)
-    data.append(ClientMain.CLIENT_SEND_TYPE)
+    data.append(ClientMain.CLIENT_PING_REQ_TYPE)
     data.append(len(ClientMain.CLIENT_PING_REQ_MSG))
     data.append(ClientMain.CLIENT_PING_REQ_MSG)
     data = pickle.dumps(data)
@@ -128,6 +128,7 @@ def pingReq(destuserid,destipaddress):
     # check is message is received
     recvStatus = False
     data = client_socket.recv(1024)
+    print "IP GOT RESP:"+data
     data = pickle.loads(data)
     if (data[0] == destuserid) and (data[1] == myuserid):
         if data[2] == randID:
@@ -153,6 +154,7 @@ def sendMsg(message,myuserid, destuserid,ipaddress):
     # check is message is received
     recvStatus = False
     data = client_socket.recv(1024)
+    print "SEND GOT RESP:"+data
     data = pickle.loads(data)
     if (data[0] == destuserid) and (data[1] == myuserid):
         if data[2] == randID:
@@ -161,3 +163,6 @@ def sendMsg(message,myuserid, destuserid,ipaddress):
     client_socket.close()
     return recvStatus
     
+    
+def RecvThread():
+    pass
