@@ -6,6 +6,7 @@ serverSocket = socket(AF_INET, SOCK_DGRAM)
 serverSocket.bind(('', serverPort))
 namelist=[]
 iplist=[]
+hashtable={}
 nodeIPmap=dict()
 messagelist=[1,2,3,4,5]
 sendbackcontrol=0
@@ -37,6 +38,7 @@ def checkactions(action, clname,clip):
 		else:                               #successful registration, sendbackcontrol=1
 			namelist.append(clname)
 			iplist.append(clip)
+			hashtable[clname]=clip
 			sendbackcontrol=1
 	elif action==1:                         #request
 		if clname in namelist:              #name found in tracker, sendbackcontrol=4
@@ -90,6 +92,7 @@ def response(a):
 		position = namelist.index(messagelist[4])
 		namelist.remove(messagelist[4])
 		del iplist[position]
+		del hashtable[messagelist[4]]
 		responsemessage = [messagelist[0], 128, 2, messagelist[3], messagelist[4]]
 		response = pickle.dumps(responsemessage)
 		serverSocket.sendto(response.encode(), clientAddress)
@@ -115,11 +118,9 @@ if __name__ == "__main__":
 
 		checkactions(messagelist[2],messagelist[4],messagelist[3])
 		response(sendbackcontrol)
-		print "name"
-		print namelist
-		print "ip"
-		print iplist
-		print len(namelist),"users registered in this tracker"
+		print "name => ip"
+		for key, value in hashtable.iteritems():
+			print key, '=>',value
 
 		continue
 

@@ -8,7 +8,7 @@ myIPAddr = ""
 ClientIPCacheMap = {}
 
 #tracker list
-trackerList = ["127.0.0.1"]#,"1.1.1.2","1.1.1.3"]
+trackerList = ["192.168.56.1"]#,"1.1.1.2","1.1.1.3"]
 trackerPort = 9990
 
 #client port
