@@ -4,6 +4,9 @@ import pickle
 import Constants
 from socket import *
 import random
+import ClientMain
+
+AddErr = True
 
 def decodeMessage(data):
     # decode the data and return list
@@ -12,13 +15,42 @@ def decodeMessage(data):
     except:
         return None
 
-def encodeMessage(data):
+def encodeMessage(data,addParity=False):
     # decode the data and return list
-    try:
-        return pickle.dumps(data)
-    except:
-        return None
+        global AddErr
+    #try:
+        #print pickle.dumps(data)
+        encodedMsg = pickle.dumps(data)
+        if(addParity):
+            parityVal =  calculateParity(encodedMsg)
+            print "Parity:"+str(parityVal)
+            if AddErr:
+                encodedMsg = list(encodedMsg)
+                firstChar = encodedMsg[0]
+                nval = ord(firstChar)
+                nval+=1
+                firstChar = chr(nval)
+                encodedMsg[0] = firstChar
+                encodedMsg = ''.join(encodedMsg);
+                AddErr = False
+            return encodedMsg+str(parityVal)
+        else:
+            return encodedMsg
+    #except:
+    #    return None
 
+def calculateParity(data):
+    # calculates the parity of the data
+    pVal = 0
+    data = list(data)
+    for byte in data:
+        val = ord(byte)
+        for i in range(8):
+            if val&1:
+                pVal = (pVal+1)%2
+            val = val>>1
+    return pVal
+        
 def validateRecvMessage(recvData,userId):
     # validates headers in message
     if(recvData[1] != userId):
@@ -148,7 +180,7 @@ def trackerQuery(userid,trackerList):
         ml.append(Constants.QUERY)
         ml.append("")
         ml.append(userid)
-        message = encodeMessage(ml)
+        message = encodeMessage(ml,addParity=True)
         clientSocket = socket(AF_INET, SOCK_DGRAM)
         clientSocket.sendto(message.encode(),(ip, Constants.trackerPort))
         
@@ -156,6 +188,11 @@ def trackerQuery(userid,trackerList):
         
         serverResp = serverResp.decode()
         serverResp = decodeMessage(serverResp)
+        
+        if serverResp[1]&Constants.MSG_ERR:
+            #error , resend packet
+            print "SERVER GOT ERROR"
+            return trackerQuery(userid,trackerList)
         
         if serverResp[0] == randID:
             # check for response flag
@@ -181,7 +218,7 @@ def exitTracker(userid,trackerList):
         ml.append(Constants.EXIT)
         ml.append("")
         ml.append(userid)
-        message = pickle.dumps(ml)
+        message = encodeMessage(ml,addParity=True)
         clientSocket = socket(AF_INET, SOCK_DGRAM)
         clientSocket.sendto(message.encode(),(ip, Constants.trackerPort))
         
@@ -189,6 +226,12 @@ def exitTracker(userid,trackerList):
         clientSocket.close()
         serverResp = serverResp.decode()
         serverResp = pickle.loads(serverResp)
+        
+        if serverResp[1]&Constants.MSG_ERR:
+            #error , resend packet
+            print "SERVER GOT ERROR"
+            return exitTracker(userid,trackerList)
+        
         if serverResp[0] == randID:
             # check for response flag
             if serverResp[1]&Constants.RES_FLAG:
@@ -210,7 +253,7 @@ def register(userid,trackerList):
         ml.append(Constants.REGISTER)
         ml.append(myIPAddr)
         ml.append(userid)
-        message = encodeMessage(ml)
+        message = encodeMessage(ml,addParity=True)
         try:
             clientSocket=socket(AF_INET, SOCK_DGRAM)
             clientSocket.sendto(message.encode(),(ip, Constants.trackerPort))
@@ -225,6 +268,12 @@ def register(userid,trackerList):
         serverResp = decodeMessage(serverResp)
         print "RESPONSE"
         print serverResp
+        if serverResp[1]&Constants.MSG_ERR:
+            #error , resend packet
+            print "SERVER GOT ERROR"
+            return register(userid,trackerList)
+            #return register(userid,trackerList)
+            
         if serverResp[0] == randID:
             # check for response flag
             if serverResp[1]&Constants.RES_FLAG:
@@ -236,7 +285,7 @@ def register(userid,trackerList):
                     #name conflict occured
                     print "UserId already Exits, try another one"
                     userid = ClientMain.getUserLoginID()
-                    return register(userid)
+                    return register(userid,trackerList)
                 # TODO : check why here
                 #if serverResp[4] != userid:
                 #    register(userid)

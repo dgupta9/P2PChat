@@ -1,7 +1,7 @@
 #   This file contains all constants
 
 #tracker list
-trackerList = ["152.7.99.154","152.46.18.231"]#,"1.1.1.2","1.1.1.3"]
+trackerList = ["10.139.56.198"]#152.7.99.154","152.46.18.231"]#,"1.1.1.2","1.1.1.3"]
 trackerPort = 9990
 
 #client port
@@ -14,6 +14,7 @@ NCONFLICT_FLAG = 64
 USERNEXIST_FLAG = 32
 EXIT_FLAG = 16
 SERVER_FULL = 8
+MSG_ERR = 4
 
 #CLIENT MESSAGE TYPES
 CLIENT_PING_REQ_TYPE = 0
