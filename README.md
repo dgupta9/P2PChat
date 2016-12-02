@@ -1,3 +1,6 @@
 # P2PChat
-You can replace the ClientRegister.py with ClientRegistermodifed.py. Then run ClientMain.py and tracker.py to see the process of Registration.
-However, it seems every time import ClientRegister.py in ClientMain.py, the userid initialized to "". The message sent to the traker message[4] is "" all the time. I think we should find a way to fix it.
+tracker.py : The codes for trackers implementation. We use dictionary-”hashtable” to store the user id and the corresponding ip address.
+ClientMain.py: The codes for client implementation.
+ClientNetworkHelper.py: The codes for handling network part implementation.
+Constants.py: Codes for constants.
+MessageHandler.py: Codes for storing messages in client.
