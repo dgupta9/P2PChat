@@ -182,6 +182,7 @@ def trackerQuery(userid,trackerList):
         ml.append(userid)
         message = encodeMessage(ml,addParity=True)
         clientSocket = socket(AF_INET, SOCK_DGRAM)
+        clientSocket.settimeout(2)
         clientSocket.sendto(message.encode(),(ip, Constants.trackerPort))
         
         serverResp, serverAddress = clientSocket.recvfrom(2048)
@@ -220,6 +221,7 @@ def exitTracker(userid,trackerList):
         ml.append(userid)
         message = encodeMessage(ml,addParity=True)
         clientSocket = socket(AF_INET, SOCK_DGRAM)
+        clientSocket.settimeout(2)
         clientSocket.sendto(message.encode(),(ip, Constants.trackerPort))
         
         serverResp, serverAddress = clientSocket.recvfrom(2048)
@@ -256,10 +258,11 @@ def register(userid,trackerList):
         message = encodeMessage(ml,addParity=True)
         try:
             clientSocket=socket(AF_INET, SOCK_DGRAM)
+            clientSocket.settimeout(2)
             clientSocket.sendto(message.encode(),(ip, Constants.trackerPort))
             serverResp, serverAddress = clientSocket.recvfrom(2048)
             clientSocket.close()
-        except:
+        except Exception as e:
             return None
         i+=1
         if serverResp == '':
