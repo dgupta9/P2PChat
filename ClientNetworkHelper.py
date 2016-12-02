@@ -238,7 +238,8 @@ def exitTracker(userid,trackerList):
             # check for response flag
             if serverResp[1]&Constants.RES_FLAG:
                 if serverResp[2]&Constants.EXIT:
-                    return
+                    if serverResp[1]&Constants.EXIT_FLAG:
+                        return
     
     #assumes none of the server has this client's information          
     return
