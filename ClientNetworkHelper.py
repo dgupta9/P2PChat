@@ -228,14 +228,18 @@ def register(userid,trackerList):
         if serverResp[0] == randID:
             # check for response flag
             if serverResp[1]&Constants.RES_FLAG:
+                if serverResp[1]&Constants.SERVER_FULL:
+                    #server is full goto next one
+                    print "server full"
+                    continue
                 if serverResp[1]&Constants.NCONFLICT_FLAG:
                     #name conflict occured
                     print "UserId already Exits, try another one"
-                    userid = Constants.getUserLoginID()
+                    userid = ClientMain.getUserLoginID()
                     return register(userid)
                 # TODO : check why here
                 #if serverResp[4] != userid:
                 #    register(userid)
                 return myIPAddr
                 # client successfully registered
-            
+    return None        

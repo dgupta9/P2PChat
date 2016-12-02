@@ -1,7 +1,7 @@
 #   This file contains all constants
 
 #tracker list
-trackerList = ["10.139.59.247"]#,"1.1.1.2","1.1.1.3"]
+trackerList = ["152.7.99.154","152.46.18.231"]#,"1.1.1.2","1.1.1.3"]
 trackerPort = 9990
 
 #client port

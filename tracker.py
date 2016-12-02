@@ -35,7 +35,7 @@ def checkactions(action, clname,clip):
 		if clname in namelist:              #name conflict, sendbackcontrol=2
 			sendbackcontrol=2
 
-		elif len(namelist)>=5:              #more than 5 clients exist, need to check other trackers. sendbackcontrol=3
+		elif len(namelist)>=2:              #more than 5 clients exist, need to check other trackers. sendbackcontrol=3
 			sendbackcontrol=3
 		else:                               #successful registration, sendbackcontrol=1
 			namelist.append(clname)

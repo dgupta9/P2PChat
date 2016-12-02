@@ -71,7 +71,7 @@ if __name__ == "__main__":
     print "\n\n Welcome "+userid+" !"
     myIPAddr = ClientNetworkHelper.register(userid,Constants.trackerList)
     if myIPAddr is None:
-        print "Failed to connect to any tracker"
+        print "Failed to connect to any tracker / All trackers are full"
         sys.exit(0)
     mh = MessageHandler()
     thread.start_new_thread(ClientNetworkHelper.recvThread,(mh,userid))
