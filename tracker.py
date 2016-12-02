@@ -75,7 +75,7 @@ def response(a):
 		responsemessage = [messagelist[0], 136, 0, messagelist[3],messagelist[4]]       # Registration: if there is no space in database, flags=11001000, action=0
 		response = pickle.dumps(responsemessage)
 		serverSocket.sendto(response.encode(), clientAddress)
-		print "User name confliction"
+		print "Tracker space is full"
 
 	elif a==4:
 		position=namelist.index(messagelist[4])
@@ -110,7 +110,7 @@ def response(a):
 		responsemessage = [0, 132, 2, 0,0]
 		response = pickle.dumps(responsemessage)
 		serverSocket.sendto(response.encode(), clientAddress)
-		print "ERROR:Name not found"
+		print "ERROR:Parity check failure"
 
 def calculateParity(data):
 	#calculates the parity of the data
