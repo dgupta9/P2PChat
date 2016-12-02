@@ -57,6 +57,7 @@ def checkactions(action, clname,clip):
 
 
 
+
 def response(a):
 	if a == 1:
 		responsemessage = [messagelist[0], 128, 0, messagelist[3], messagelist[4]]		#Registration: successful registration,flags=10000000,action=0
@@ -105,6 +106,24 @@ def response(a):
 		response = pickle.dumps(responsemessage)
 		serverSocket.sendto(response.encode(), clientAddress)
 		print "ERROR:Name not found"
+	elif a==8:																			#Parity check fail
+		responsemessage = [0, 132, 2, 0,0]
+		response = pickle.dumps(responsemessage)
+		serverSocket.sendto(response.encode(), clientAddress)
+		print "ERROR:Name not found"
+
+def calculateParity(data):
+	#calculates the parity of the data
+	pVal = 0
+	for byte in data:
+		val = ord(byte)
+		for i in range (8):
+			if val&1:
+				pVal = (pVal+1)&2
+			val = val>>1
+	print "pal=" + str(pVal)
+	return pVal
+
 
 
 
@@ -114,17 +133,31 @@ if __name__ == "__main__":
 	while True:
 		m1, clientAddress = serverSocket.recvfrom(2048)
 		#message=message.decode()
-		messagelist=pickle.loads(m1)
-		print "Received "
-		print messagelist
+		#print pickle.loads(m1)
+		parity=m1[-1]
+		print parity
+		m1=m1[:-1]
+		if parity==str(calculateParity(m1)):
+			messagelist=pickle.loads(m1)
+			print "Received "
+			print messagelist
 
-		checkactions(messagelist[2],messagelist[4],messagelist[3])
-		response(sendbackcontrol)
-		print "name => ip"
-		for key, value in hashtable.iteritems():
-			print key, '=>',value
+			checkactions(messagelist[2],messagelist[4],messagelist[3])
+			response(sendbackcontrol)
+			print "name => ip"
+			for key, value in hashtable.iteritems():
+				print key, '=>',value
 
-		continue
+			continue
+		else:
+			print "Received bit error "
+			response(8)
+			print "name => ip"
+			for key, value in hashtable.iteritems():
+				print key, '=>',value
+
+			continue
+			
 
 
 
