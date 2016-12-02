@@ -119,7 +119,7 @@ def calculateParity(data):
 		val = ord(byte)
 		for i in range (8):
 			if val&1:
-				pVal = (pVal+1)&2
+				pVal = (pVal+1)%2
 			val = val>>1
 	print "pal=" + str(pVal)
 	return pVal
