@@ -96,13 +96,13 @@ def response(a):
 		namelist.remove(messagelist[4])
 		del iplist[position]
 		del hashtable[messagelist[4]]
-		responsemessage = [messagelist[0], 128, 2, messagelist[3], messagelist[4]]
+		responsemessage = [messagelist[0], 144, 2, messagelist[3], messagelist[4]]
 		response = pickle.dumps(responsemessage)
 		serverSocket.sendto(response.encode(), clientAddress)
 		print "Exit Successfully"
 
 	elif a==7:																			#Exit: if name not exsisting, flag=10010000,action=2
-		responsemessage = [messagelist[0], 144, 2, messagelist[3],messagelist[4]]
+		responsemessage = [messagelist[0], 160, 2, messagelist[3],messagelist[4]]
 		response = pickle.dumps(responsemessage)
 		serverSocket.sendto(response.encode(), clientAddress)
 		print "ERROR:Name not found"
